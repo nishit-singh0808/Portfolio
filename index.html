@@ -20,31 +20,202 @@
   <meta name="twitter:title" content="Nishit Portfolio" />
   <meta name="twitter:description" content="Nishit, Software Engineer" />
   <style>
+    :root { --brand-blue: #0171e3; --brand-blue-dark: #005fc3; --brand-blue-pale: #dbeafe; --ice-blue: #a5d8ff; }
     .portfolio-panel { width: 100%; max-width: 42rem; margin-bottom: 1rem; padding: 1.25rem; border: 1px solid rgba(255,255,255,.4); border-radius: 1rem; background: rgba(255,255,255,.3); box-shadow: 0 10px 25px rgba(0,0,0,.08); backdrop-filter: blur(16px); text-align: center; }
     .portfolio-panel h2 { margin: 0; font-size: 1.125rem; font-weight: 600; color: #1f2937; }
     .portfolio-panel p { margin: .25rem 0 0; font-size: .875rem; color: #4b5563; }
-    .portfolio-panel .about-content { margin-top: .75rem; text-align: left; color: #374151; }
-    .portfolio-panel .about-content p { margin: 0 0 .75rem; line-height: 1.55; }
-    .portfolio-panel .about-content h3 { margin: 1rem 0 .5rem; font-size: 1rem; color: #1f2937; }
-    .portfolio-panel .about-content ul { margin: 0; padding-left: 1.25rem; }
-    .portfolio-panel .about-content li { margin: 0 0 .65rem; line-height: 1.45; }
-    .portfolio-panel .about-content li:last-child { margin-bottom: 0; }
+    .portfolio-panel > #portfolio-description { margin: .25rem 0 0; font-size: .875rem; color: #4b5563; }
+    .portfolio-panel.is-about { max-width: none; padding: 0; border: 0; background: none; box-shadow: none; backdrop-filter: none; text-align: left; }
+    .portfolio-panel.is-about .portfolio-panel-heading { display: none; }
+    .portfolio-panel.is-about > #portfolio-description { margin: 0; color: inherit; font-size: 1rem; }
+    .about-layout { display: grid; grid-template-columns: minmax(14rem, .8fr) minmax(0, 1.4fr); align-items: center; gap: clamp(1.25rem, 3vw, 2.5rem); width: 100%; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid rgba(255,255,255,.7); border-radius: 1rem; background: rgba(255,255,255,.77); box-shadow: 0 24px 60px rgba(15,23,42,.14); color: #263238; }
+    .about-card-stage { display: grid; min-height: 24rem; place-items: center; perspective: 1200px; transform: translateY(-5.25rem); }
+    .about-flip-card { position: relative; width: min(100%, 17rem); aspect-ratio: 4 / 5; transform-style: preserve-3d; }
+    .about-layout.is-revealed .about-flip-card { animation: about-card-flip 1.35s cubic-bezier(.22,.76,.28,1) both; }
+    .about-card-face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; overflow: hidden; padding: 1.25rem; border: 1px solid rgba(255,255,255,.7); border-radius: .75rem; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 18px 38px rgba(15,23,42,.2); }
+    .about-card-front { background: linear-gradient(145deg, #1764c0, #142e5a 72%); color: #f4f8ff; }
+    .about-card-monogram { position: absolute; inset: 50% auto auto 50%; color: rgba(255,255,255,.13); font-size: 12rem; font-weight: 800; line-height: 1; transform: translate(-50%, -56%); }
+    .about-card-front span:not(.about-card-monogram) { position: relative; }
+    .about-card-label { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .about-card-name { margin-top: .35rem; font-size: 1.3rem; font-weight: 700; }
+    .about-card-back { transform: rotateY(180deg); padding: 0; background: var(--brand-blue-pale); }
+    .about-card-back img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .about-copy { min-width: 0; }
+    .about-copy > * { opacity: 0; transform: translateY(12px); filter: blur(7px); }
+    .about-layout.is-revealed .about-copy > * { animation: about-copy-reveal .7s cubic-bezier(.22,1,.36,1) both; }
+    .about-layout.is-revealed .about-copy > :nth-child(1) { animation-delay: .42s; }
+    .about-layout.is-revealed .about-copy > :nth-child(2) { animation-delay: .52s; }
+    .about-layout.is-revealed .about-copy > :nth-child(3) { animation-delay: .62s; }
+    .about-layout.is-revealed .about-copy > :nth-child(4) { animation-delay: .72s; }
+    .about-layout.is-revealed .about-copy > :nth-child(5) { animation-delay: .82s; }
+    .about-kicker { margin: 0 0 .35rem !important; color: var(--brand-blue) !important; font-size: .7rem !important; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .about-copy h2 { margin: 0; color: #1f2937; font-size: 2rem; line-height: 1.1; }
+    .about-copy .about-role { margin: .5rem 0 .9rem; color: var(--brand-blue) !important; font-size: .9rem; font-weight: 600; }
+    .about-copy > p:not(.about-kicker):not(.about-role) { margin: 0 0 .75rem; color: #475569; font-size: .9rem; line-height: 1.65; }
+    .about-experience { margin-top: 1.25rem; }
+    .about-experience h3 { margin: 0 0 .75rem; color: #1f2937; font-size: 1rem; }
+    .about-experience ol { display: grid; gap: .8rem; margin: 0; padding: 0; list-style: none; }
+    .about-experience li { padding-left: .8rem; border-left: 2px solid #60a5fa; }
+    .about-job-title, .about-job-org { display: block; }
+    .about-job-title { color: #334155; font-size: .85rem; font-weight: 700; }
+    .about-job-org { margin-top: .12rem; color: var(--brand-blue); font-size: .78rem; font-weight: 600; }
+    .about-experience li p { margin: .3rem 0 0; color: #64748b; font-size: .78rem; line-height: 1.5; }
+    .portfolio-panel.is-skills { max-width: none; padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; text-align: left; }
+    .portfolio-panel-heading { display: flex; align-items: center; justify-content: center; gap: .75rem; margin-bottom: .75rem; }
+    .portfolio-panel-heading h2 { margin: 0; color: #1f2937; font-size: 1.1rem; }
+    .portfolio-panel.is-skills .portfolio-panel-heading { justify-content: center; }
+    .magnet-toggle { display: none; align-items: center; gap: .45rem; padding: .4rem .65rem; border: 1px solid rgba(1,113,227,.22); border-radius: 999px; background: rgba(255,255,255,.75); color: #334155; font: inherit; font-size: .72rem; font-weight: 650; cursor: pointer; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .25s ease, background .2s ease, color .2s ease; }
+    .magnet-toggle[aria-pressed="true"] { border-color: var(--brand-blue); background: var(--brand-blue); color: #fff; }
+    .portfolio-panel.is-skills > #portfolio-description { width: 100%; margin: 0; }
+    .portfolio-panel.is-projects { max-width: none; padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; text-align: left; }
+    .portfolio-panel.is-projects > .portfolio-panel-heading { justify-content: center; }
+    .portfolio-panel.is-projects > #portfolio-description { width: 100%; margin: 0; }
+    .project-carousel { width: min(100%, 64rem); margin: 0 auto; }
+    .project-carousel-row { display: flex; align-items: center; gap: .65rem; }
+    .project-carousel-window { min-width: 0; flex: 1; overflow: hidden; }
+    .project-carousel-track { display: flex; align-items: stretch; gap: 1rem; width: 100%; padding: .25rem 0 .75rem; }
+    .project-card { display: flex; min-height: 27rem; flex: 0 0 calc((100% - 2rem) / 3); flex-direction: column; overflow: hidden; border: 1px solid rgba(255,255,255,.72); border-radius: .9rem; background: rgba(255,255,255,.86); box-shadow: 0 12px 28px rgba(15,23,42,.12); color: #26374a; }
+    .project-card > img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #dbeafe; }
+    .project-card-copy { display: flex; flex: 1; flex-direction: column; padding: .9rem; }
+    .project-card h3 { margin: 0; color: #1f2937; font-size: 1rem; font-weight: 700; }
+    .project-card p { margin: .4rem 0 1rem; color: #526174; font-size: .78rem; line-height: 1.45; }
+    .project-card-actions { display: flex; gap: .5rem; margin-top: auto; }
+    .project-card-actions a { display: inline-flex; min-height: 2.2rem; align-items: center; justify-content: center; padding: .45rem .65rem; border: 1px solid rgba(1,113,227,.2); border-radius: .5rem; background: #fff; color: #0759a5; font-size: .72rem; font-weight: 650; text-decoration: none; }
+    .project-card-actions a.project-live-button { border-color: var(--brand-blue); background: var(--brand-blue); color: #fff; }
+    .project-card-actions a.project-live-button, .project-card-actions a.project-repo-link { transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(1,113,227,0); transition: transform .48s cubic-bezier(.34,1.56,.64,1), border-color .2s ease, box-shadow .32s ease; }
+    .project-card-actions a.project-live-button:hover, .project-card-actions a.project-live-button:focus-visible, .project-card-actions a.project-repo-link:hover, .project-card-actions a.project-repo-link:focus-visible { border-color: var(--brand-blue); transform: translateY(-1px) scale(1.035); box-shadow: 0 0 16px rgba(1,113,227,.38); }
+    .project-card-actions a.project-repo-link { width: 2.2rem; padding: .45rem; }
+    .project-repo-link img { display: block; width: 2rem; height: 1.5rem; }
+    .project-carousel-arrow { display: grid; width: 2.5rem; height: 2.5rem; flex: 0 0 auto; place-items: center; border: 1px solid rgba(1,113,227,.22); border-radius: 50%; background: rgba(255,255,255,.88); box-shadow: 0 4px 12px rgba(15,23,42,.12); color: #0759a5; font-size: 1.35rem; cursor: pointer; }
+    .project-carousel-arrow:disabled { opacity: .35; cursor: default; }
+    @media (max-width: 700px) { .project-card { min-height: 25rem; flex-basis: 100%; } }
+    .skills-grid { display: grid; width: min(100%, 60rem); margin-inline: auto; grid-template-columns: repeat(auto-fill, minmax(min(100%, 5rem), 1fr)); gap: .65rem; }
+    .skill-card { display: flex; min-width: 0; aspect-ratio: 1; flex-direction: column; align-items: center; justify-content: space-between; padding: .7rem .4rem .55rem; overflow: hidden; border: 1px solid rgba(1,113,227,.16); border-radius: .65rem; background: rgba(255,255,255,.78); box-shadow: 0 5px 14px rgba(15,23,42,.06); text-align: center; }
+    .portfolio-panel.is-skills .skill-card { animation: skill-card-drop .65s cubic-bezier(.2,.8,.25,1) both; animation-delay: calc(var(--skill-index, 0) * 28ms); }
+    @keyframes skill-card-drop { from { opacity: 0; transform: translateY(-100vh); } to { opacity: 1; transform: translateY(0); } }
+    @media (min-width: 900px) {
+      .skills-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+    }
+    .skill-icon { display: grid; width: 2.45rem; height: 2.45rem; flex: 0 0 auto; place-items: center; border-radius: .7rem; background: rgba(1,113,227,.1); color: var(--brand-blue); }
+    .skill-icon img { display: block; width: 1.65rem; height: 1.65rem; object-fit: contain; }
+    .skill-name { display: flex; min-height: 2.2rem; align-items: center; justify-content: center; color: #334155; font-size: .68rem; font-weight: 600; line-height: 1.15; overflow-wrap: anywhere; text-wrap: balance; }
+    .portfolio-panel.is-fun { max-width: none; padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; text-align: left; }
+    .portfolio-panel.is-fun > .portfolio-panel-heading { display: none; }
+    .portfolio-panel.is-fun > #portfolio-description { width: 100%; margin: 0; }
+    .fun-grid { display: grid; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+    .fun-card { position: relative; display: flex; min-width: 0; aspect-ratio: 1 / 1.12; flex-direction: column; justify-content: flex-end; padding: .85rem; overflow: hidden; border: 1px solid rgba(255,255,255,.55); border-radius: .65rem; background: #172554; color: #fff; isolation: isolate; }
+    .portfolio-panel.is-fun .fun-card { transform-origin: center; backface-visibility: hidden; animation: fun-card-flip-in .7s cubic-bezier(.22,.76,.28,1) both; }
+    .portfolio-panel.is-fun .fun-card:nth-child(2) { animation-delay: .01s; }
+    .portfolio-panel.is-fun .fun-card:nth-child(3) { animation-delay: .01s; }
+    .portfolio-panel.is-fun .fun-card:nth-child(4) { animation-delay: .01s; }
+    .portfolio-panel.is-fun .fun-card:nth-child(5) { animation-delay: .01s; }
+    .portfolio-panel.is-fun .fun-card:nth-child(6) { animation-delay: .01s; }
+    .fun-card > img { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .fun-card::after { position: absolute; z-index: -1; inset: 25% 0 0; background: linear-gradient(180deg, transparent, rgba(8,16,34,.88)); content: ""; }
+    .fun-card-copy { min-width: 0; }
+    .fun-card h3 { margin: 0; color: #fff; font-size: .95rem; font-weight: 700; line-height: 1.2; }
+    .fun-card p { margin: .3rem 0 0; color: rgba(255,255,255,.88); font-size: .7rem; line-height: 1.35; }
+    @media (min-width: 900px) {
+      .fun-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @keyframes fun-card-flip-in { from { opacity: 0; transform: perspective(900px) rotateY(-88deg) scale(.86); } to { opacity: 1; transform: perspective(900px) rotateY(0) scale(1); } }
+    .portfolio-panel.is-more { max-width: none; padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; text-align: left; }
+    .portfolio-panel.is-more > .portfolio-panel-heading { justify-content: flex-start; }
+    .portfolio-panel.is-more > #portfolio-description { width: 100%; margin: 0; }
+    .more-faq { display: grid; gap: .55rem; width: 100%; }
+    .more-faq details { overflow: hidden; border: 1px solid rgba(1,113,227,.16); border-radius: .55rem; background: rgba(255,255,255,.78); }
+    .portfolio-panel.is-more .more-faq details { animation: more-question-slide .7s cubic-bezier(.22,.7,.25,1) both; }
+    .portfolio-panel.is-more .more-faq details:nth-child(2) { animation-delay: .18s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(3) { animation-delay: .36s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(4) { animation-delay: .54s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(5) { animation-delay: .72s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(6) { animation-delay: .9s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(7) { animation-delay: 1.08s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(8) { animation-delay: 1.26s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(9) { animation-delay: 1.44s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(10) { animation-delay: 1.62s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(11) { animation-delay: 1.8s; }
+    .portfolio-panel.is-more .more-faq details:nth-child(12) { animation-delay: 1.98s; }
+    @keyframes more-question-slide { from { opacity: 0; transform: translateY(110vh); } to { opacity: 1; transform: translateY(0); } }
+    .more-faq summary { display: flex; min-height: 2.75rem; align-items: center; justify-content: space-between; gap: 1rem; padding: .65rem .85rem; color: #26374a; cursor: pointer; font-size: .84rem; font-weight: 650; list-style: none; }
+    .more-faq summary::-webkit-details-marker { display: none; }
+    .more-faq summary::after { display: grid; width: 1.35rem; height: 1.35rem; flex: 0 0 auto; place-items: center; border-radius: 50%; background: rgba(1,113,227,.1); color: var(--brand-blue); content: "+"; font-size: 1rem; line-height: 1; }
+    .more-faq details[open] summary::after { content: "−"; }
+    .more-faq details p { margin: 0; padding: 0 .85rem .8rem; color: #526174; font-size: .8rem; line-height: 1.55; }
+    .skills-grid.magnet-released { position: fixed; z-index: 15; display: block; box-sizing: border-box; margin: 0; overflow: hidden; touch-action: none; }
+    .skills-grid.magnet-released .skill-card { position: absolute; box-sizing: border-box; width: var(--magnet-card-size); height: var(--magnet-card-size); min-width: 0; aspect-ratio: auto; padding: .35rem .2rem; }
+    .skills-grid.magnet-released .skill-icon { width: 1.65rem; height: 1.65rem; border-radius: .45rem; }
+    .skills-grid.magnet-released .skill-icon img { width: 1.1rem; height: 1.1rem; }
+    .skills-grid.magnet-released .skill-name { min-height: 1.1rem; font-size: clamp(.48rem, 1.2vw, .62rem); }
+    @keyframes about-card-flip { 0% { opacity: 0; transform: translateY(1.5rem) scale(.78) rotateY(0); } 32% { opacity: 1; transform: translateY(-.4rem) scale(1.04) rotateY(0); } 100% { opacity: 1; transform: translateY(0) scale(1) rotateY(180deg); } }
+    @keyframes about-copy-reveal { to { opacity: 1; transform: translateY(0); filter: blur(0); } }
     .profile-image { width: 15rem; height: auto; margin-bottom: .75rem; object-fit: contain; image-rendering: auto; }
+    .profile-links { position: fixed; z-index: 40; top: 1.25rem; right: 1.25rem; display: flex; flex-direction: row; gap: .5rem; }
+    .profile-links a { position: relative; display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: #1d3437; transition: transform .2s ease; }
+    .profile-links a:hover { transform: translateY(-2px); }
+    .profile-links img { display: block; width: clamp(1.35rem, 2.6vw, 1.75rem); height: clamp(1.35rem, 2.6vw, 1.75rem); object-fit: contain; transition: transform .2s ease; }
+    .profile-links a[aria-label="GitHub"] img, .profile-links a[aria-label="Resume PDF"] img { width: clamp(1.5rem, 3vw, 1.95rem); height: clamp(1.5rem, 3vw, 1.95rem); }
+    .profile-links a:hover img, .profile-links a:focus-visible img { transform: scale(1.12); }
+    .profile-links a[data-tooltip]::after { position: absolute; top: calc(100% + .25rem); right: 0; padding: .4rem .6rem; border-radius: .35rem; background: rgba(24,39,40,.94); color: #fff; content: attr(data-tooltip); font-size: .72rem; line-height: 1.25; white-space: nowrap; opacity: 0; visibility: hidden; transform: translateY(-3px); transition: opacity .16s ease, transform .16s ease, visibility .16s ease; pointer-events: none; }
+    .profile-links a[data-tooltip]::after, .profile-links button[data-tooltip]::after { position: absolute; top: calc(100% + .25rem); right: 0; padding: .4rem .6rem; border-radius: .35rem; background: rgba(24,39,40,.94); color: #fff; content: attr(data-tooltip); font-size: .72rem; line-height: 1.25; white-space: nowrap; opacity: 0; visibility: hidden; transform: translateY(-3px); transition: opacity .16s ease, transform .16s ease, visibility .16s ease; pointer-events: none; }
+    .profile-links a[data-tooltip]:hover::after, .profile-links a[data-tooltip]:focus-visible::after, .profile-links button[data-tooltip]:hover::after, .profile-links button[data-tooltip]:focus-visible::after { opacity: 1; visibility: visible; transform: translateY(0); }
+    .connect-option { position: relative; }
+    .connect-trigger { position: relative; display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border: 0; background: transparent; color: #c19433; cursor: pointer; transition: transform .2s ease; }
+    .connect-trigger:hover { transform: translateY(-2px); }
+    .connect-trigger svg { width: clamp(1.5rem, 3vw, 1.95rem); height: clamp(1.5rem, 3vw, 1.95rem); transition: transform .2s ease; }
+    .connect-trigger:hover svg, .connect-trigger:focus-visible svg { transform: scale(1.12); }
+    .connect-popover { position: absolute; z-index: 50; top: calc(100% + .5rem); right: 0; width: min(19rem, calc(100vw - 1.5rem)); padding: 1rem; border: 1px solid rgba(255,255,255,.72); border-radius: .7rem; background: transparent; box-shadow: 0 16px 40px rgba(15,23,42,.2); color: #263238; text-align: left; backdrop-filter: blur(5px); }
+    .connect-popover[hidden] { display: none; }
+    .connect-eyebrow { margin: 0; color: var(--brand-blue); font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .connect-email-row { display: flex; align-items: center; justify-content: space-between; gap: .65rem; margin: .55rem 0 .85rem; }
+    .connect-email { min-width: 0; margin: 0; color: #263238; font-size: .82rem; overflow-wrap: anywhere; }
+    .connect-email-button { display: grid; flex: 0 0 2.5rem; width: 2.5rem; height: 2.5rem; place-items: center; padding: 0; border: 0; border-radius: .5rem; background: transparent; color: #64748b; cursor: pointer; transition: background-color .18s ease, color .18s ease, transform .2s ease; }
+    .connect-email-button:hover, .connect-email-button:focus-visible { background: rgba(1,113,227,.1); color: var(--brand-blue); transform: translateY(-1px); }
+    .connect-email-button svg { width: 1.1rem; height: 1.1rem; }
+    .profile-links a.connect-now-button { position: relative; isolation: isolate; display: flex; min-height: 2.5rem; align-items: center; justify-content: center; width: 100%; height: 2.5rem; overflow: hidden; border: 1px solid var(--ice-blue); border-radius: .4rem; background: transparent; color: #111827; font-size: .84rem; font-weight: 600; text-decoration: none; transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(1,113,227,0); transition: transform .48s cubic-bezier(.34,1.56,.64,1), border-color .2s ease, box-shadow .32s ease; }
+    .profile-links a.connect-now-button::before { position: absolute; z-index: 0; inset: 0; background-image: linear-gradient(rgba(1,113,227,.6),rgba(1,113,227,.6)), linear-gradient(rgba(1,113,227,.6),rgba(1,113,227,.6)), linear-gradient(rgba(1,113,227,.6),rgba(1,113,227,.6)), linear-gradient(rgba(1,113,227,.6),rgba(1,113,227,.6)); background-repeat: no-repeat; background-position: left center, right center, center top, center bottom; background-size: 0% 100%, 0% 100%, 100% 0%, 100% 0%; content: ""; transition: background-size .52s cubic-bezier(.34,1.56,.64,1); }
+    .connect-now-label { position: relative; z-index: 1; display: inline-block; }
+    .connect-now-label-base { display: block; }
+    .connect-now-label-fill { position: absolute; z-index: 2; top: 0; left: 0; color: #fff; white-space: nowrap; clip-path: inset(0 100% 0 0); pointer-events: none; transition: clip-path .52s cubic-bezier(.34,1.56,.64,1); }
+    .connect-now-label-fill-right { clip-path: inset(0 0 0 100%); }
+    .connect-now-label-fill-top { clip-path: inset(100% 0 0 0); }
+    .connect-now-label-fill-bottom { clip-path: inset(0 0 100% 0); }
+    .profile-links a.connect-now-button:hover, .profile-links a.connect-now-button:focus-visible { border-color: var(--brand-blue); transform: translateY(-1px) scale(1.035); box-shadow: 0 0 16px rgba(1,113,227,.38); }
+    .profile-links a.connect-now-button:hover::before, .profile-links a.connect-now-button:focus-visible::before { background-size: 50% 100%, 50% 100%, 100% 50%, 100% 50%; }
+    .connect-now-button:hover .connect-now-label-fill-left, .connect-now-button:focus-visible .connect-now-label-fill-left { clip-path: inset(0 50% 0 0); }
+    .connect-now-button:hover .connect-now-label-fill-right, .connect-now-button:focus-visible .connect-now-label-fill-right { clip-path: inset(0 0 0 50%); }
+    .connect-now-button:hover .connect-now-label-fill-top, .connect-now-button:focus-visible .connect-now-label-fill-top { clip-path: inset(0 0 50% 0); }
+    .connect-now-button:hover .connect-now-label-fill-bottom, .connect-now-button:focus-visible .connect-now-label-fill-bottom { clip-path: inset(50% 0 0 0); }
+    .connect-resume-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .9rem; padding-top: .8rem; border-top: 1px solid rgba(38,50,56,.14); }
+    .connect-resume-label { color: #263238; font-size: .88rem; font-weight: 600; }
+    .connect-download { display: inline-flex; align-items: center; gap: .4rem; color: var(--brand-blue); font-size: .82rem; font-weight: 700; text-decoration: none; }
+    .profile-links a.connect-download { flex: 0 0 auto; width: auto; height: 2.25rem; justify-content: center; padding: 0 .4rem; }
+    .connect-download:hover { text-decoration: underline; }
+    .connect-download img { width: 1.35rem; height: 1.35rem; }
     .portfolio-option.is-selected { border-color: rgba(1,113,227,.65); background: rgba(255,255,255,.65); box-shadow: 0 0 0 2px rgba(1,113,227,.18); }
     #portfolio-app { position: relative; isolation: isolate; }
     .hero-header, .portfolio-content, .option-grid { transition: transform .75s cubic-bezier(.22,1,.36,1), opacity .45s ease, width .75s cubic-bezier(.22,1,.36,1); }
-    .profile-image { transition: width 1.6s cubic-bezier(.16,1,.3,1), height 1.6s cubic-bezier(.16,1,.3,1), margin 1.6s cubic-bezier(.16,1,.3,1), transform 1.6s cubic-bezier(.16,1,.3,1); }
+    .hero-header { transition: transform .75s cubic-bezier(.22,1,.36,1), opacity .45s ease, width .75s cubic-bezier(.22,1,.36,1), height .55s cubic-bezier(.22,1,.36,1), margin .55s cubic-bezier(.22,1,.36,1); }
+    .profile-image { transition: width 1.05s cubic-bezier(.4,0,.2,1), height 1.05s cubic-bezier(.4,0,.2,1), margin 1.05s cubic-bezier(.4,0,.2,1), border-radius 1.05s cubic-bezier(.4,0,.2,1), transform 1.05s cubic-bezier(.4,0,.2,1); }
     .portfolio-content { transform-origin: center center; }
-    .portfolio-option { transition: transform 0.4s cubic-bezier(.16,1,.3,1), opacity .35s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease; }
-    .portfolio-option:hover { background: rgba(255,255,255,.62); border-color: rgba(1,113,227,.45); box-shadow: 0 10px 24px rgba(1,113,227,.16), 0 0 0 2px rgba(255,255,255,.2); }
+    .portfolio-option { transition: transform .48s cubic-bezier(.34,1.56,.64,1), opacity .35s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease; }
+    .portfolio-option:hover { background: rgba(1,113,227,.12); border-color: rgba(1,113,227,.45); box-shadow: 0 10px 24px rgba(1,113,227,.16), 0 0 0 2px rgba(255,255,255,.2); }
     .portfolio-option:hover svg { transform: translateY(-3px) scale(1.1); filter: drop-shadow(0 4px 5px rgba(0,0,0,.12)); }
     .portfolio-option:hover span { transform: translateY(-1px); }
     .portfolio-option svg, .portfolio-option span { transition: transform .25s ease, filter .25s ease; }
     .portfolio-option.is-opening svg, .portfolio-option.is-opening span { animation: option-open .55s cubic-bezier(.22,1,.36,1) both; }
+    .name-watermark { background-image: linear-gradient(to bottom, rgb(38 38 38 / 20%), rgb(64 64 64 / 0%)); font-size: min(14vw, 16rem); white-space: nowrap; }
     @keyframes option-open { 0% { opacity: .35; transform: scale(.72); } 55% { opacity: 1; transform: scale(1.16); } 100% { opacity: 1; transform: scale(1); } }
     .is-exploring .hero-header > h2, .is-exploring .hero-header > h1 { transform: translateY(-2rem) scale(.85); opacity: 0; pointer-events: none; }
+    .is-exploring .hero-header { height: 0; min-height: 0; margin: 0; }
+    .is-exploring.about-view { justify-content: flex-start; padding-top: clamp(1rem, 4vh, 2rem); }
+    .is-exploring.skills-view { justify-content: flex-start; padding-top: clamp(4rem, 8vh, 5rem); }
+    .is-exploring.more-view { justify-content: flex-start; padding-top: clamp(1rem, 4vh, 2rem); }
     .is-exploring .profile-image { position: fixed; z-index: 20; top: 1.5rem; left: 1.5rem; width: 5.5rem !important; height: 5.5rem !important; margin: 0; border-radius: 50%; object-fit: cover; background: rgba(255,255,255,.2); }
     .is-exploring .portfolio-content { width: min(42rem, calc(100vw - 10rem)) !important; margin-left: 6rem; transform: none !important; }
+    .is-exploring.skills-view .portfolio-content { width: min(60rem, calc(100vw - 10rem)) !important; }
+    .is-exploring.projects-view .portfolio-content { width: min(64rem, calc(100vw - 10rem)) !important; }
+    .is-exploring.more-view .portfolio-content { width: min(60rem, calc(100vw - 10rem)) !important; }
     .is-exploring .option-grid { position: fixed; z-index: 20; top: 9rem; left: 1.5rem; width: 5.5rem !important; margin: 0; display: flex; flex-direction: column; gap: .7rem; transform: none; }
     .is-exploring .portfolio-option { aspect-ratio: 1; width: 5.5rem !important; height: 5.5rem !important; padding: .5rem; transform: translateX(0); }
     .is-exploring .portfolio-option.is-selected {transform: translateX(0.85rem) scale(1.05) !important;}
@@ -54,11 +225,37 @@
     .is-exploring .portfolio-panel, .portfolio-panel.is-switching { animation: panel-open .55s cubic-bezier(.22,1,.36,1) both; }
     @keyframes panel-open { 0% { opacity: 0; transform: translateY(2rem) scale(.82); } 65% { opacity: 1; transform: translateY(-.35rem) scale(1.02); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
     @media (max-width: 700px) {
+      .name-watermark-wrap { position: fixed; }
+      .name-watermark-wrap > .name-watermark { margin-bottom: 0 !important; }
+      .is-exploring.mobile-menu-collapsed .option-grid .portfolio-option {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(var(--collapse-y)) scale(.12) !important;
+        transition-delay: var(--collapse-delay);
+      }
       .is-exploring .portfolio-content { width: calc(100vw - 7rem) !important; margin-left: 2.5rem; transform: none !important; }
-      .is-exploring .profile-image { top: 1rem; left: 1rem; width: 4rem; height: 4rem; }
+      .is-exploring.skills-view { padding-top: 5.25rem; }
+      .is-exploring.skills-view .portfolio-content { width: calc(100vw - 1.5rem) !important; margin-left: 0; }
+      .is-exploring.projects-view .portfolio-content { width: calc(100vw - 1.5rem) !important; margin-left: 0; }
+      .is-exploring.more-view { padding-top: 5.25rem; }
+      .is-exploring.more-view .portfolio-content { width: calc(100vw - 1.5rem) !important; margin-left: 0; }
+      .is-exploring .profile-image { top: 1rem; left: 1rem; width: 4rem; height: 4rem; cursor: pointer; }
       .is-exploring .option-grid { top: 6rem; left: .75rem; width: 4rem; gap: .45rem; }
       .is-exploring .portfolio-option { width: 4rem !important; height: 4rem !important; }
       .is-exploring .portfolio-option span { font-size: .6rem; }
+      .about-layout { grid-template-columns: 1fr; gap: .75rem; padding: 1rem; }
+      .about-card-stage { min-height: 0; padding: .25rem 0; transform: translateY(.75rem); }
+      .about-flip-card { width: min(10rem, 72%); }
+      .about-card-face { padding: .9rem; }
+      .about-card-monogram { font-size: 8rem; }
+      .about-copy h2 { font-size: 1.6rem; }
+      .about-copy > p:not(.about-kicker):not(.about-role) { font-size: .84rem; }
+      .profile-links { top: .75rem; right: .75rem; gap: .35rem; }
+      .profile-links a { width: 2.5rem; height: 2.5rem; }
+      .connect-trigger { width: 2.5rem; height: 2.5rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .about-layout.is-revealed .about-flip-card, .about-layout.is-revealed .about-copy > *, .portfolio-panel.is-fun .fun-card, .portfolio-panel.is-more .more-faq details, .portfolio-panel.is-skills .skill-card { animation-duration: .01ms; animation-delay: 0ms; }
     }
   </style>
 </head>
@@ -66,15 +263,15 @@
 <body class="bg-background min-h-screen font-sans antialiased __variable_f367f3">
   <main class="flex min-h-screen flex-col">
     <div id="portfolio-app" class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pb-10 md:pb-20">
-      <div class="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center overflow-hidden">
-        <div
-          class="hidden bg-gradient-to-b from-neutral-500/10 to-neutral-500/0 bg-clip-text text-[10rem] leading-none font-black text-transparent select-none sm:block lg:text-[16rem]"
-          style="margin-bottom: -2.5rem">
-          NISHIT SINGH
-        </div>
+      <div class="name-watermark-wrap pointer-events-none absolute inset-x-0 bottom-0 z-[1] flex justify-center overflow-hidden">
+      <div
+        class="name-watermark block bg-gradient-to-b from-neutral-800/20 to-neutral-700/0 bg-clip-text leading-none font-black text-transparent select-none"
+        style="margin-bottom: -2.5rem">
+        NISHIT SINGH
       </div>
+    </div>
       <div class="hero-header z-1 mt-24 mb-8 flex flex-col items-center text-center md:mt-4 md:mb-12">
-        <img class="profile-image" src="images/avatar.svg" alt="Nishit" />
+        <img class="profile-image" src="images/avatar.svg" alt="Nishit" role="button" tabindex="0" aria-controls="portfolio-options" aria-expanded="false" aria-label="Show portfolio options" />
         <h2 class="text-secondary-foreground mt-1 text-xl font-semibold md:text-2xl">
           Hey, I&#x27;m Nishit
         </h2>
@@ -84,10 +281,12 @@
       </div>
       <div class="portfolio-content z-10 mt-4 flex w-full flex-col items-center justify-center md:px-0">
         <div class="portfolio-panel">
-          <h2 id="portfolio-title">Choose one to unlock my story</h2>
-          <p id="portfolio-description"></p>
+          <div class="portfolio-panel-heading">
+            <h2 id="portfolio-title">Choose one to unlock my story</h2>
+          </div>
+          <div id="portfolio-description"></div>
         </div>
-        <div class="option-grid mt-4 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3 md:grid-cols-5">
+        <div id="portfolio-options" class="option-grid mt-4 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3 md:grid-cols-5" role="group" aria-label="Portfolio sections">
           <button data-slot="button"
             class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*=&#x27;size-&#x27;])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 has-[&gt;svg]:px-3 border-border hover:bg-border/30 aspect-square w-full cursor-pointer rounded-2xl border bg-white/30 py-8 shadow-none backdrop-blur-lg active:scale-95 md:p-10">
             <div class="flex h-full flex-col items-center justify-center gap-1 text-gray-700">
@@ -152,20 +351,47 @@
             <div class="flex h-full flex-col items-center justify-center gap-1 text-gray-700">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
                 stroke="#C19433" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-user-round-search">
-                <circle cx="10" cy="8" r="5"></circle>
-                <path d="M2 21a8 8 0 0 1 10.434-7.62"></path>
-                <circle cx="18" cy="18" r="3"></circle>
-                <path d="m22 22-1.9-1.9"></path>
-              </svg><span class="text-xs font-medium sm:text-sm">Contact</span>
+                class="lucide lucide-ellipsis">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="19" cy="12" r="1"></circle>
+                <circle cx="5" cy="12" r="1"></circle>
+              </svg><span class="text-xs font-medium sm:text-sm">More</span>
             </div>
           </button>
         </div>
       </div>
-      <div class="fixed top-0 left-0 z-0">
-        <canvas id="fluid" class="h-screen w-screen"></canvas>
-      </div>
+      <div class="fixed top-0 left-0 z-[-1]">
+  <canvas id="fluid" class="h-screen w-screen"></canvas>
+</div>
     </div>
+    <nav class="profile-links" aria-label="Social profiles and contact">
+      <a href="https://www.linkedin.com/in/nishit-singh08?utm_source=share_via&amp;utm_content=profile&amp;utm_medium=member_ios" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
+        <img src="images/linkedIn.svg" alt="" aria-hidden="true" />
+      </a>
+      <a href="https://github.com/nishit-singh0808" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+        <img src="images/github.svg" alt="" aria-hidden="true" />
+      </a>
+      <div class="connect-option">
+        <button id="connect-toggle" class="connect-trigger" type="button" aria-label="Connect" aria-expanded="false" aria-controls="connect-popover" data-tooltip="Connect">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="5" /><path d="M2 21a8 8 0 0 1 10.434-7.62" /><circle cx="18" cy="18" r="3" /><path d="m22 22-1.9-1.9" /></svg>
+        </button>
+        <div id="connect-popover" class="connect-popover" hidden>
+          <div class="connect-email-row">
+            <p class="connect-email">Choudharynishit08@gmail.com</p>
+            <button id="copy-email-button" class="connect-email-button" type="button" aria-label="Copy email address" title="Copy email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" /><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" /></svg>
+            </button>
+          </div>
+          <a class="connect-now-button" href="mailto:choudharynishit08@gmail.com"><span class="connect-now-label"><span class="connect-now-label-base">Connect Now</span><span class="connect-now-label-fill connect-now-label-fill-left" aria-hidden="true">Connect Now</span><span class="connect-now-label-fill connect-now-label-fill-right" aria-hidden="true">Connect Now</span><span class="connect-now-label-fill connect-now-label-fill-top" aria-hidden="true">Connect Now</span><span class="connect-now-label-fill connect-now-label-fill-bottom" aria-hidden="true">Connect Now</span></span></a>
+          <div class="connect-resume-row">
+            <span class="connect-resume-label">Resume</span>
+            <a class="connect-download" href="Resume.pdf" download="Resume.pdf" aria-label="Download resume" title="Download resume" data-tooltip="Download resume PDF">
+              <img src="images/resume.svg" alt="" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
   </main>
   <section aria-label="Notifications alt+T" tabindex="-1" aria-live="polite" aria-relevant="additions text"
     aria-atomic="false"></section>
@@ -181,6 +407,67 @@
       var content = document.querySelector('.portfolio-content');
       var optionGrid = document.querySelector('.option-grid');
       var panel = document.querySelector('.portfolio-panel');
+      var connectOption = document.querySelector('.connect-option');
+      var connectToggle = document.getElementById('connect-toggle');
+      var connectPopover = document.getElementById('connect-popover');
+      var copyEmailButton = document.getElementById('copy-email-button');
+      var copyEmailMarkup = copyEmailButton.innerHTML;
+      var copyEmailResetTimer;
+      function fallbackCopyText(text) {
+        var textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.setAttribute('readonly', '');
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        var copied = document.execCommand('copy');
+        textArea.remove();
+        if (!copied) throw new Error('Clipboard copy failed');
+      }
+      copyEmailButton.addEventListener('click', async function () {
+        var email = document.querySelector('.connect-email').textContent.trim();
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(email);
+          else fallbackCopyText(email);
+        } catch (error) {
+          try {
+            fallbackCopyText(email);
+          } catch (fallbackError) {
+            copyEmailButton.setAttribute('aria-label', 'Unable to copy email');
+            copyEmailButton.setAttribute('data-tooltip', 'Copy failed');
+            copyEmailButton.title = 'Copy failed';
+            return;
+          }
+        }
+        copyEmailButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>';
+        copyEmailButton.setAttribute('aria-label', 'Email copied');
+        copyEmailButton.setAttribute('data-tooltip', 'Copied');
+        copyEmailButton.title = 'Copied';
+        window.clearTimeout(copyEmailResetTimer);
+        copyEmailResetTimer = window.setTimeout(function () {
+          copyEmailButton.innerHTML = copyEmailMarkup;
+          copyEmailButton.setAttribute('aria-label', 'Copy email address');
+          copyEmailButton.setAttribute('data-tooltip', 'Copy email');
+          copyEmailButton.title = 'Copy email';
+        }, 1600);
+      });
+      function setConnectPopoverOpen(open) {
+        connectPopover.hidden = !open;
+        connectToggle.setAttribute('aria-expanded', String(open));
+      }
+      connectToggle.addEventListener('click', function () {
+        setConnectPopoverOpen(connectPopover.hidden);
+      });
+      document.addEventListener('click', function (event) {
+        if (!connectOption.contains(event.target)) setConnectPopoverOpen(false);
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !connectPopover.hidden) {
+          setConnectPopoverOpen(false);
+          connectToggle.focus();
+        }
+      });
       var avatar = new Image();
       avatar.src = 'images/avatar.svg';
       var sections = {
@@ -188,27 +475,365 @@
         Projects: 'Projects',
         Skills: 'Skills',
         Fun: 'Fun',
-        Contact: 'Contact'
+        More: 'More'
       };
       var descriptions = {
-        Projects: 'Add your projects here.',
-        Skills: 'Add your skills here.',
-        Fun: 'Add something about yourself here.',
-        Contact: 'Add your contact details here.'
+        Projects: '',
       };
+      var projects = [
+        { name: 'DARK-Salon', detail: 'Full-stack salon booking and management platform built with Next.js, React, Firebase, and Bootstrap. Features user authentication, service browsing, cart and checkout flow, admin dashboard, professional application workflow, booking management, and responsive UI for a modern beauty services business.', image: 'images/projects/first.PNG', live: 'https://darkglamsalon.web.app', repo: 'https://github.com/nishit-singh0808/Dark-Salon.git' },
+        { name: 'JEFFA', detail: 'Contributed to the development and improvement of JEFFA’s live Shopify e-commerce website during one year as a Web Developer. Worked on responsive product pages, collections, navigation, cart interactions, checkout flow, customer accounts, order tracking, and return/exchange support for an activewear brand.', image: 'images/projects/second.jpg', live: 'https://www.jeffa.in', repo: '' },
+        { name: 'Portfolio', detail: 'Responsive personal portfolio for Nishit Singh, built with HTML, CSS, and JavaScript. Features profile, projects, skills, and interests.', image: 'images/projects/third.png', live: '', repo: 'https://github.com/nishit-singh0808/Portfolio.git' },
+        { name: 'Vision-CoreML-Fitness-Food-Classifier', detail: 'iOS fitness and nutrition app using Apple Vision and Core ML to classify food, identify workout equipment, suggest workouts, and estimate nutrition.', image: 'images/projects/fourth.png', live: '', repo: 'https://github.com/nishit-singh0808/Vision-CoreML-Fitness-Food-Classifier.git' },
+        { name: 'DARK-Google-Login', detail: 'DARK Salon — A SwiftUI iOS salon app with Google Sign-In, Firebase, location services, address management, and a modern dark-themed UI.', image: 'images/projects/fifth.png', live: '', repo: 'https://github.com/nishit-singh0808/DARK-Google-Login.git' }
+      ];
+      var projectContent = '<div class="project-carousel" aria-label="Project portfolio"><div class="project-carousel-row"><button class="project-carousel-arrow" type="button" data-project-direction="left" aria-label="Scroll projects left" disabled>‹</button><div class="project-carousel-window"><div class="project-carousel-track" role="list">' + projects.map(function (project) {
+        return '<article class="project-card" role="listitem"><img src="' + project.image + '" alt="' + project.name + ' preview"><div class="project-card-copy"><h3>' + project.name + '</h3><p>' + project.detail + '</p><div class="project-card-actions">' + (project.live ? '<a class="project-live-button" href="' + project.live + '" target="_blank" rel="noopener noreferrer">View live website</a>' : '') + (project.repo ? '<a class="project-repo-link" href="' + project.repo + '" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository for ' + project.name + '" title="GitHub repository"><img src="images/github.svg" alt="" aria-hidden="true"></a>' : '') + '</div></div></article>';
+      }).join('') + '</div></div><button class="project-carousel-arrow" type="button" data-project-direction="right" aria-label="Scroll projects right">›</button></div></div>';
+      function updateProjectArrows() {
+        var viewport = description.querySelector('.project-carousel-window');
+        if (!viewport) return;
+        var leftArrow = description.querySelector('[data-project-direction="left"]');
+        var rightArrow = description.querySelector('[data-project-direction="right"]');
+        leftArrow.disabled = viewport.scrollLeft <= 2;
+        rightArrow.disabled = viewport.scrollLeft + viewport.clientWidth >= viewport.scrollWidth - 2;
+      }
+      description.addEventListener('click', function (event) {
+        var arrow = event.target.closest('[data-project-direction]');
+        if (!arrow) return;
+        var viewport = description.querySelector('.project-carousel-window');
+        if (viewport) {
+          var card = viewport.querySelector('.project-card');
+          var track = viewport.querySelector('.project-carousel-track');
+          var gap = track ? parseFloat(window.getComputedStyle(track).columnGap) || 0 : 0;
+          var step = card ? card.getBoundingClientRect().width + gap : viewport.clientWidth;
+          viewport.scrollBy({ left: (arrow.dataset.projectDirection === 'right' ? 1 : -1) * step, behavior: 'smooth' });
+        }
+      });
+      description.addEventListener('scroll', updateProjectArrows, true);
+      window.addEventListener('resize', updateProjectArrows);
+      var skillFiles = [
+        'Playwrite.svg', 'Python.svg', 'Selenium.svg', 'pytest.svg', 'Git.svg', 'GitHub.svg', 'GitLab.svg',
+        'Powershell.svg', 'Firebase.svg', 'Cloud firestore.svg', 'CSS3.svg', 'HTML5.svg', 'Java.svg',
+        'JavaScript.svg', 'React.svg', 'TypeScript.svg', 'MySQL.svg', 'Swift.svg', 'shopify.svg', 'Bootstrap.svg', 'Next.js.svg'
+      ];
+      var skillLabels = {
+        'Cloud firestore.svg': 'Cloud Firestore',
+        'pytest.svg': 'Pytest',
+        'shopify.svg': 'Shopify',
+        'Playwrite.svg': 'Playwrite'
+      };
+      var skillsContent = '<div class="skills-grid" role="list">' + skillFiles.map(function (fileName) {
+        var skillName = skillLabels[fileName] || fileName.replace(/\.svg$/i, '');
+        return '<article class="skill-card" role="listitem" style="--skill-index:' + skillFiles.indexOf(fileName) + '"><span class="skill-icon"><img src="images/skills/' + encodeURIComponent(fileName) + '" alt="" aria-hidden="true"></span><span class="skill-name">' + skillName + '</span></article>';
+      }).join('') + '</div>';
+      var funActivities = [
+        { name: 'Bike Riding', detail: 'The open road clears my head and makes every ride feel like an adventure.', image: 'bike.jpg' },
+        { name: 'Hiking & Trekking', detail: 'The trail helps me slow down, explore, and reconnect with the outdoors.', image: 'hiking.jpg' },
+        { name: 'Travel', detail: 'I love discovering new places and collecting moments along the way.', image: 'travel.jpg' },
+        { name: 'Gym', detail: 'Training gives me energy, focus, and a satisfying sense of progress.', image: 'gym.jpg' },
+        { name: 'Extreme Sports', detail: 'I enjoy the rush and challenge of pushing beyond my comfort zone.', image: 'extreme.jpg' }
+      ];
+      var funContent = '<div class="fun-grid" role="list">' + funActivities.map(function (activity) {
+        return '<article class="fun-card" role="listitem"><img src="images/fun/' + activity.image + '" alt="" aria-hidden="true"><div class="fun-card-copy"><h3>' + activity.name + '</h3><p>' + activity.detail + '</p></div></article>';
+      }).join('') + '</div>';
+      var moreFaq = [
+        { question: 'Tell me about yourself.', answer: 'I am a Software Engineer with over two years of experience across full-stack web development, iOS apps, and automated quality engineering. I enjoy carrying work through the full lifecycle, from designing interfaces and data structures to building reliable tests and backend integrations.' },
+        { question: 'Why should we hire you?', answer: 'I bring both product-building and quality-engineering experience. I can contribute to full-stack and mobile development while also thinking carefully about test coverage, reliability, and how a feature behaves for its users.' },
+        { question: 'What are your strengths?', answer: 'My strengths are problem-solving, clear communication, teamwork, and connecting development with testing. I am comfortable breaking a problem into steps and using tools such as Pytest, Playwright, Selenium, and Robot Framework to verify the result.' },
+        { question: 'What is one area you are improving?', answer: 'I can sometimes spend too long refining details. I manage that by agreeing on the requirements first, time-boxing polish, and prioritizing the work that has the biggest impact.' },
+        { question: 'How do you approach a new project?', answer: 'I first clarify the requirements and constraints, then break the work into manageable pieces. I think through the data model and user experience, build in small steps, and plan testing throughout rather than leaving quality to the end.' },
+        { question: 'How do you ensure software quality?', answer: 'I combine practical test coverage with early feedback. Depending on the product, I use tools such as Pytest, Playwright, Selenium, or Robot Framework, and I investigate failures to address their cause instead of only patching symptoms.' },
+        { question: 'How do you handle tight deadlines?', answer: 'I clarify what is essential, split the work into smaller deliverables, and surface risks early. I keep teammates updated when priorities or estimates change so we can make trade-offs deliberately.' },
+        { question: 'How do you work with a team?', answer: 'I value direct communication, shared context, and reliable follow-through. I ask questions early, share progress, and treat review feedback as a way to improve the product together.' },
+        { question: 'How do you approach an unfamiliar technical problem?', answer: 'I make the problem reproducible, gather evidence, and test one assumption at a time. I consult documentation and teammates when useful, then verify the fix with focused tests.' },
+        { question: 'What are your career goals?', answer: 'I want to keep growing as a software engineer who can build useful full-stack and mobile products while making quality and reliability part of the development process.' }
+      ];
+      var moreContent = '<div class="more-faq" aria-label="Common interview questions">' + moreFaq.map(function (item, index) {
+        return '<details' + (index === 0 ? ' open' : '') + '><summary>' + item.question + '</summary><p>' + item.answer + '</p></details>';
+      }).join('') + '</div>';
+      var magnetGrid = null;
+      var magnetCards = [];
+      var magnetFrame = 0;
+      var magnetStartTimer = 0;
+      var magnetAnchorRect = null;
+      var magnetGridParent = null;
+      var magnetGridNextSibling = null;
+      var magnetToggle = document.querySelector('.magnet-toggle');
+      var magnetEnabled = false;
+      var magnetRevealTimer = 0;
+      var magnetDropStartedAt = 0;
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+      if (magnetToggle) magnetToggle.addEventListener('click', function () {
+        magnetEnabled = !magnetEnabled;
+        magnetToggle.setAttribute('aria-pressed', String(magnetEnabled));
+        magnetToggle.setAttribute('aria-label', magnetEnabled ? 'Turn magnet off' : 'Turn magnet on');
+        magnetToggle.lastElementChild.textContent = magnetEnabled ? 'ON' : 'OFF';
+        arrangeMagnetCards();
+        magnetCards.forEach(function (card) {
+          if (magnetEnabled) {
+            // Snap to the centered slots as a group so changing card size
+            // cannot make cards cross or overlap during the transition.
+            card.x = card.targetX;
+            card.y = card.targetY;
+            card.vx = 0;
+            card.vy = 0;
+          } else {
+            // Restart the rain in the same non-overlapping lanes.
+            card.x = card.targetX;
+            card.y = card.targetY - magnetGrid.clientHeight - card.height;
+            card.vx = 0;
+            card.vy = 0;
+          }
+          card.settled = false;
+        });
+      });
+      function disableDeviceMotion() {}
+      function arrangeMagnetCards() {
+        if (!magnetGrid || !magnetCards.length) return;
+        var width = magnetGrid.clientWidth;
+        var height = magnetGrid.clientHeight;
+        var gap = 5;
+        var preferredSize = window.innerWidth <= 700 ? 48 : 100;
+        // Keep the magnet layout in a readable row based on the arena width.
+        // Eight columns is the laptop/desktop cap; narrower screens naturally
+        // get fewer columns as the available width shrinks.
+        var maxColumns = Math.max(1, Math.min(magnetCards.length, 8, Math.floor((width + gap) / (preferredSize + gap))));
+        var bestColumns = maxColumns;
+        var bestRows = Math.ceil(magnetCards.length / bestColumns);
+        var bestSize = Math.floor(Math.min(preferredSize, (width - gap * (bestColumns - 1)) / bestColumns, (height - gap * (bestRows - 1)) / bestRows));
+        // Keep the rows inside the arena even when a short viewport has many
+        // skills; forcing a larger minimum makes bottom rows stack together.
+        bestSize = Math.max(12, bestSize);
+        var layoutWidth = bestColumns * bestSize + (bestColumns - 1) * gap;
+        var layoutHeight = bestRows * bestSize + (bestRows - 1) * gap;
+        var offsetX = magnetEnabled ? Math.max(0, (width - layoutWidth) / 2) : 0;
+        var offsetY = magnetEnabled ? Math.max(0, (height - layoutHeight) / 2) : 0;
+        var fallDistance = height + bestSize;
+        magnetGrid.style.setProperty('--magnet-card-size', bestSize + 'px');
+        magnetCards.forEach(function (card, index) {
+          var column = index % bestColumns;
+          var row = Math.floor(index / bestColumns);
+          card.targetX = offsetX + column * (bestSize + gap);
+          card.targetY = offsetY + row * (bestSize + gap);
+          card.width = bestSize;
+          card.height = bestSize;
+          if (!card.initialized) {
+            card.x = card.targetX;
+            card.y = card.targetY - fallDistance;
+            card.vy = 0;
+            card.initialized = true;
+          }
+          card.element.style.left = card.x + 'px';
+          card.element.style.top = card.y + 'px';
+          card.element.style.width = bestSize + 'px';
+          card.element.style.height = bestSize + 'px';
+        });
+      }
+      function resizeMagnetArena() {
+        if (!magnetGrid) return;
+        var viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+        var viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        var smallScreen = viewportWidth <= 700;
+        var minimumLeft = smallScreen ? 76 : 120;
+        var left = Math.min(Math.max(minimumLeft, magnetAnchorRect.left), Math.max(minimumLeft, viewportWidth - 120));
+        var heading = document.querySelector('.portfolio-panel-heading');
+        var minimumTop = heading ? heading.getBoundingClientRect().bottom + 12 : 110;
+        var top = Math.max(minimumTop, Math.min(magnetAnchorRect.top, viewportHeight - 150));
+        top = Math.min(top, viewportHeight - 100);
+        var arenaWidth = Math.min(viewportWidth - 24, 1120);
+        left = Math.max(12, (viewportWidth - arenaWidth) / 2);
+        magnetGrid.style.left = left + 'px';
+        magnetGrid.style.top = top + 'px';
+        magnetGrid.style.width = arenaWidth + 'px';
+        magnetGrid.style.height = Math.max(80, viewportHeight - top - 12) + 'px';
+        arrangeMagnetCards();
+      }
+      function startMagnetMotion() {
+        if (!magnetGrid) return;
+        var previousTime = 0;
+        function animateCards(time) {
+          if (!magnetGrid) return;
+          var delta = previousTime ? Math.min(.035, (time - previousTime) / 1000) : 1 / 60;
+          previousTime = time;
+          var elapsed = time - magnetDropStartedAt;
+          magnetCards.forEach(function (card) {
+            if (magnetEnabled) {
+              card.vx += (card.targetX - card.x) * 18 * delta;
+              card.vy += (card.targetY - card.y) * 18 * delta;
+              card.vx *= Math.pow(.78, delta * 60);
+              card.vy *= Math.pow(.78, delta * 60);
+            } else {
+              card.vx = 0;
+              card.vy += 680 * delta;
+              card.vx *= Math.pow(.994, delta * 60);
+              card.vy *= Math.pow(.994, delta * 60);
+            }
+            card.x += card.vx * delta;
+            card.y += card.vy * delta;
+          });
+          var maxX = Math.max(0, magnetGrid.clientWidth);
+          var maxY = Math.max(0, magnetGrid.clientHeight);
+          magnetCards.forEach(function (card) {
+            var rightLimit = Math.max(0, maxX - card.width);
+            var bottomLimit = Math.max(0, maxY - card.height);
+            if (magnetEnabled) {
+              card.x = clamp(card.x, 0, rightLimit);
+              card.y = clamp(card.y, 0, bottomLimit);
+            } else {
+              if (card.x < 0) { card.x = 0; card.vx = Math.abs(card.vx) * .35; }
+              if (card.x > rightLimit) { card.x = rightLimit; card.vx = -Math.abs(card.vx) * .35; }
+              if (card.y >= card.targetY) { card.y = card.targetY; card.vy = 0; }
+              if (card.y >= 0) card.entered = true;
+              if (card.y < 0 && card.entered) { card.y = 0; card.vy = Math.abs(card.vy) * .35; }
+              card.settled = Math.abs(card.vx) < 9 && Math.abs(card.vy) < 9;
+            }
+            card.element.style.left = card.x + 'px';
+            card.element.style.top = card.y + 'px';
+          });
+          // Reveal the control after the rain has had time to start even if a
+          // card is still bouncing and never reaches the settled threshold.
+          if (!magnetEnabled && !magnetRevealTimer && elapsed > 2200) {
+            magnetRevealTimer = window.setTimeout(function () {
+              magnetRevealTimer = 0;
+              if (magnetGrid && !magnetEnabled) panel.classList.add('magnet-ready');
+            }, 350);
+          }
+          magnetFrame = requestAnimationFrame(animateCards);
+        }
+        magnetFrame = requestAnimationFrame(animateCards);
+      }
+      function releaseSkillCards() {
+        var grid = document.querySelector('.skills-grid');
+        if (!grid) return;
+        if (magnetFrame) cancelAnimationFrame(magnetFrame);
+        window.clearTimeout(magnetStartTimer);
+        window.clearTimeout(magnetRevealTimer);
+        magnetRevealTimer = 0;
+        disableDeviceMotion();
+        var cards = Array.from(grid.querySelectorAll('.skill-card'));
+        magnetAnchorRect = grid.getBoundingClientRect();
+        magnetGridParent = grid.parentNode;
+        magnetGridNextSibling = grid.nextSibling;
+        magnetGrid = grid;
+        magnetCards = cards.map(function (element) {
+          return { element: element, x: 0, y: 0, width: 0, height: 0, vx: 0, vy: 0, initialized: false, entered: false, settled: false };
+        });
+        magnetEnabled = false;
+        panel.classList.remove('magnet-ready');
+        magnetToggle.setAttribute('aria-pressed', 'false');
+        magnetToggle.setAttribute('aria-label', 'Turn magnet on');
+        magnetToggle.lastElementChild.textContent = 'OFF';
+        grid.classList.add('magnet-released');
+        document.body.appendChild(grid);
+        resizeMagnetArena();
+        magnetDropStartedAt = performance.now();
+        startMagnetMotion();
+      }
+      function returnSkillCardsToGrid(animateReturn) {
+        if (!magnetGrid) return;
+        if (magnetFrame) cancelAnimationFrame(magnetFrame);
+        window.clearTimeout(magnetStartTimer);
+        window.clearTimeout(magnetRevealTimer);
+        magnetRevealTimer = 0;
+        disableDeviceMotion();
+        var currentRects = magnetCards.map(function (card) { return card.element.getBoundingClientRect(); });
+        var grid = magnetGrid;
+        var cards = magnetCards.map(function (card) { return card.element; });
+        if (magnetGridParent) {
+          if (magnetGridNextSibling && magnetGridNextSibling.parentNode === magnetGridParent) magnetGridParent.insertBefore(grid, magnetGridNextSibling);
+          else magnetGridParent.appendChild(grid);
+        }
+        grid.classList.remove('magnet-released', 'gravity-active');
+        panel.classList.remove('magnet-ready');
+        magnetEnabled = false;
+        magnetToggle.setAttribute('aria-pressed', 'false');
+        magnetToggle.setAttribute('aria-label', 'Turn magnet on');
+        magnetToggle.lastElementChild.textContent = 'OFF';
+        ['left', 'top', 'width', 'height', '--magnet-card-size'].forEach(function (property) {
+          grid.style.removeProperty(property);
+        });
+        cards.forEach(function (card) {
+          ['position', 'left', 'top', 'width', 'height'].forEach(function (property) {
+            card.style.removeProperty(property);
+          });
+        });
+        void grid.offsetHeight;
+        if (animateReturn) cards.forEach(function (card, index) {
+          var target = card.getBoundingClientRect();
+          card.animate([
+            { transform: 'translate(' + (currentRects[index].left - target.left) + 'px, ' + (currentRects[index].top - target.top) + 'px) scale(.92)' },
+            { transform: 'translate(0, 0) scale(1)' }
+          ], { duration: 390, delay: index * 22, easing: 'cubic-bezier(.22,1,.36,1)' });
+        });
+        magnetGrid = null;
+        magnetCards = [];
+        magnetAnchorRect = null;
+        magnetGridParent = null;
+        magnetGridNextSibling = null;
+      }
       var aboutContent = `
-        <div class="about-content">
-          <p><strong>Software Engineer • Full-Stack Developer • Test Automation Engineer</strong></p>
-          <p>I am a Software Engineer with over 2 years of industry experience across Full-Stack Web Development, iOS Mobile Apps, and Automated Quality Engineering. My work spans building production-grade web applications, integrating LLM models into mobile platforms, and architecting robust test automation suites.</p>
-          <p>I specialize in taking products through the entire Software Development Lifecycle (SDLC)—from database design and frontend user interfaces to automated test suites and cloud backends.</p>
-          <h3>Experience</h3>
-          <ul>
-            <li><strong>Software Engineer</strong> | <em>Red Piranha</em><br>Drive automated quality engineering and software reliability using PyTest, Playwright, Selenium, and Robot Framework.</li>
-            <li><strong>Full Stack Developer</strong> | <em>Jeffa Industries</em> (1 Year)<br>Developed and shipped production web applications, including client platform <strong>jeffa.in</strong>, utilizing modern web tech stacks and database architectures.</li>
-            <li><strong>Software Engineer Intern</strong> | <em>Cetpa Infotech</em> (6 Months)<br>Built core web development foundations, database design principles, and software testing practices.</li>
-          </ul>
+        <div class="about-layout is-revealed">
+          <div class="about-card-stage" role="group" aria-label="Flipping portrait card">
+            <div class="about-flip-card">
+              <div class="about-card-face about-card-front" aria-hidden="true">
+                <span class="about-card-monogram">N</span>
+                <span class="about-card-label">Portfolio</span>
+                <span class="about-card-name">Nishit Singh</span>
+              </div>
+              <div class="about-card-face about-card-back">
+                <img src="images/Nishit.jpeg" alt="Portrait of Nishit Singh" />
+              </div>
+            </div>
+          </div>
+          <div class="about-copy">
+            <p class="about-kicker">Profile / Software Engineer</p>
+            <h2>Nishit Singh</h2>
+            <p class="about-role">Test Automation · Full-Stack Developer · iOS</p>
+            <p>I am a Software Engineer with over 2 years of industry experience across Automated Quality Engineering, Full-Stack Web Development and iOS Mobile Apps. My work spans building production-grade web applications, integrating LLM models into mobile platforms, and architecting robust test automation suites.</p>
+            <p>I take products through the full software development lifecycle, from database design and user interfaces to automated test suites and cloud backends.</p>
+            <section class="about-experience">
+              <h3>Experience</h3>
+              <ol>
+                <li><span class="about-job-title">Software Engineer</span><span class="about-job-org">Red Piranha</span><p>Drive software reliability and automated quality engineering with PyTest, Playwright, Selenium, and Robot Framework.</p></li>
+                <li><span class="about-job-title">Full Stack Developer</span><span class="about-job-org">Jeffa Industries</span><p>Developed and shipped production web applications, including jeffa.in, using modern web stacks and database architectures.</p></li>
+                <li><span class="about-job-title">Software Engineer Intern</span><span class="about-job-org">Cetpa Infotech</span><p>Built foundations in web development, database design, and software testing.</p></li>
+              </ol>
+            </section>
+          </div>
         </div>`;
-      function slideOptions(options, openingButton) {
+      function setMobileMenuExpanded(expanded) {
+        app.classList.toggle('mobile-menu-collapsed', !expanded);
+        image.setAttribute('aria-expanded', String(expanded));
+        image.setAttribute('aria-label', expanded ? 'Hide portfolio options' : 'Show portfolio options');
+        if (expanded) {
+          optionGrid.removeAttribute('inert');
+          optionGrid.removeAttribute('aria-hidden');
+        } else {
+          optionGrid.setAttribute('inert', '');
+          optionGrid.setAttribute('aria-hidden', 'true');
+        }
+      }
+      image.addEventListener('click', function () {
+        if (!app.classList.contains('is-exploring') || window.innerWidth > 700) return;
+        setMobileMenuExpanded(app.classList.contains('mobile-menu-collapsed'));
+      });
+      image.addEventListener('keydown', function (event) {
+        if ((event.key === 'Enter' || event.key === ' ') && app.classList.contains('is-exploring') && window.innerWidth <= 700) {
+          event.preventDefault();
+          setMobileMenuExpanded(app.classList.contains('mobile-menu-collapsed'));
+        }
+      });
+      window.addEventListener('resize', function () {
+        if (app.classList.contains('is-exploring')) setMobileMenuExpanded(window.innerWidth > 700);
+        if (magnetGrid) resizeMagnetArena();
+      });
+      window.addEventListener('orientationchange', function () {
+        if (magnetGrid) resizeMagnetArena();
+      });
+      function slideOptions(options, openingButton, collapseAfterSlide) {
         var oldRects = options.map(function (option) {
           return option.getBoundingClientRect();
         });
@@ -226,7 +851,18 @@
           option.style.setProperty('transform', 'translate(var(--slide-x), var(--slide-y))', 'important');
         });
         var startTime = performance.now();
+        var slideFinished = false;
+        function finishSlide() {
+          if (slideFinished) return;
+          slideFinished = true;
+          options.forEach(function (option) {
+            option.style.removeProperty('transition');
+            option.style.removeProperty('transform');
+          });
+          if (collapseAfterSlide && window.innerWidth <= 700) setMobileMenuExpanded(false);
+        }
         function animateOptions(now) {
+          if (slideFinished) return;
           var finished = true;
           options.forEach(function (option, index) {
             var progress = Math.max(0, Math.min(1, (now - startTime - index * 80) / 1250));
@@ -238,41 +874,56 @@
             if (progress < 1) finished = false;
           });
           if (!finished) requestAnimationFrame(animateOptions);
-          else options.forEach(function (option) {
-            option.style.setProperty('transition', 'none', 'important');
-            option.style.setProperty('transform', option === openingButton ? 'scale(1.12) translateX(1rem)' : 'none', 'important');
-          });
+          else finishSlide();
         }
         requestAnimationFrame(animateOptions);
+        if (collapseAfterSlide) window.setTimeout(finishSlide, 1700);
       }
       document.querySelectorAll('button').forEach(function (button) {
         var label = button.querySelector('span:not(.sr-only)');
         if (!label || !sections[label.textContent]) return;
-        button.classList.add('portfolio-option');
-        button.addEventListener('click', function () {
+      button.classList.add('portfolio-option');
+      button.addEventListener('click', function () {
           var options = Array.from(document.querySelectorAll('.portfolio-option'));
           var isFirstSelection = !app.classList.contains('is-exploring');
+          var isAbout = label.textContent === 'Me';
+          var isProjects = label.textContent === 'Projects';
+          var isSkills = label.textContent === 'Skills';
+          var isFun = label.textContent === 'Fun';
+          var isMore = label.textContent === 'More';
+          if (!isSkills && magnetGrid) returnSkillCardsToGrid(false);
+          var imageStartRect = isFirstSelection ? image.getBoundingClientRect() : null;
           if (isFirstSelection) {
+            image.style.setProperty('height', imageStartRect.height + 'px', 'important');
             image.src = avatar.src;
-            slideOptions(options, button);
+            var shouldCollapseMenu = window.innerWidth <= 700;
+            if (shouldCollapseMenu) options.forEach(function (option, index) {
+              option.style.setProperty('--collapse-y', (-80 - index * 71.2) + 'px');
+              option.style.setProperty('--collapse-delay', index * 25 + 'ms');
+            });
+            slideOptions(options, button, shouldCollapseMenu);
           }
           else app.classList.add('is-exploring');
+          if (!isFirstSelection && window.innerWidth <= 700) setMobileMenuExpanded(false);
           greetings.forEach(function (greeting) {
             greeting.style.setProperty('opacity', '0', 'important');
             greeting.style.setProperty('transform', 'translateY(-2rem) scale(.85)', 'important');
           });
           image.style.setProperty('width', window.innerWidth <= 700 ? '4rem' : '5.5rem', 'important');
           image.style.setProperty('height', window.innerWidth <= 700 ? '4rem' : '5.5rem', 'important');
-          content.style.setProperty('width', window.innerWidth <= 700 ? 'calc(100vw - 7rem)' : 'min(42rem, calc(100vw - 10rem))', 'important');
+          if (isFirstSelection) {
+            var imageTargetRect = image.getBoundingClientRect();
+            image.animate([
+              { transform: 'translate(' + (imageStartRect.left - imageTargetRect.left) + 'px, ' + (imageStartRect.top - imageTargetRect.top) + 'px)' },
+              { transform: 'translate(0, 0)' }
+            ], { duration: 1050, easing: 'cubic-bezier(.4,0,.2,1)' });
+          }
+          content.style.setProperty('width', window.innerWidth <= 700 ? (isProjects || isSkills || isMore ? 'calc(100vw - 1.5rem)' : 'calc(100vw - 7rem)') : (isAbout || isProjects || isSkills || isMore ? 'min(64rem, calc(100vw - 10rem))' : 'min(42rem, calc(100vw - 10rem))'), 'important');
           optionGrid.style.setProperty('width', window.innerWidth <= 700 ? '4rem' : '5.5rem', 'important');
           window.setTimeout(function () {
             greetings.forEach(function (greeting) {
               greeting.style.setProperty('transition', 'none', 'important');
             });
-            options.forEach(function (option) {
-              option.style.setProperty('transform', option === button ? 'scale(1.12) translateX(1rem)' : 'none', 'important');
-            });
-            image.style.setProperty('transition', 'none', 'important');
             content.style.setProperty('transition', 'none', 'important');
             optionGrid.style.setProperty('transition', 'none', 'important');
           }, isFirstSelection ? 700 : 50);
@@ -283,7 +934,19 @@
           button.classList.add('is-selected');
           button.classList.add('is-opening');
           title.textContent = sections[label.textContent];
-          description.innerHTML = label.textContent === 'Me' ? aboutContent : descriptions[label.textContent];
+          panel.classList.toggle('is-about', isAbout);
+          panel.classList.toggle('is-projects', isProjects);
+          panel.classList.toggle('is-skills', isSkills);
+          panel.classList.toggle('is-fun', isFun);
+          panel.classList.toggle('is-more', isMore);
+          content.classList.toggle('is-about', isAbout);
+          content.classList.toggle('skills-view', isSkills);
+          app.classList.toggle('about-view', isAbout);
+          app.classList.toggle('projects-view', isProjects);
+          app.classList.toggle('skills-view', isSkills);
+          app.classList.toggle('more-view', isMore);
+          description.innerHTML = isAbout ? aboutContent : (isProjects ? projectContent : (isSkills ? skillsContent : (isFun ? funContent : (isMore ? moreContent : descriptions[label.textContent]))));
+          if (isProjects) requestAnimationFrame(updateProjectArrows);
           panel.classList.remove('is-switching');
           void panel.offsetWidth;
           panel.classList.add('is-switching');
