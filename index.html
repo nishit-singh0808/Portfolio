@@ -31,6 +31,7 @@
     .about-layout { display: grid; grid-template-columns: minmax(14rem, .8fr) minmax(0, 1.4fr); align-items: center; gap: clamp(1.25rem, 3vw, 2.5rem); width: 100%; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid rgba(255,255,255,.7); border-radius: 1rem; background: rgba(255,255,255,.77); box-shadow: 0 24px 60px rgba(15,23,42,.14); color: #263238; }
     .about-card-stage { display: grid; min-height: 24rem; place-items: center; perspective: 1200px; transform: translateY(-5.25rem); }
     .about-flip-card { position: relative; width: min(100%, 17rem); aspect-ratio: 4 / 5; transform-style: preserve-3d; }
+    .about-card-face { transform-style: preserve-3d; }
     .about-layout.is-revealed .about-flip-card { animation: about-card-flip 1.35s cubic-bezier(.22,.76,.28,1) both; }
     .about-card-face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; overflow: hidden; padding: 1.25rem; border: 1px solid rgba(255,255,255,.7); border-radius: .75rem; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 18px 38px rgba(15,23,42,.2); }
     .about-card-front { background: linear-gradient(145deg, #1764c0, #142e5a 72%); color: #f4f8ff; }
@@ -38,8 +39,8 @@
     .about-card-front span:not(.about-card-monogram) { position: relative; }
     .about-card-label { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
     .about-card-name { margin-top: .35rem; font-size: 1.3rem; font-weight: 700; }
-    .about-card-back { transform: rotateY(180deg); padding: 0; background: var(--brand-blue-pale); }
-    .about-card-back img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .about-card-back { transform: rotateY(180deg) translateZ(1px); padding: 0; background: var(--brand-blue-pale); }
+    .about-card-back img { display: block; width: 100%; height: 100%; object-fit: cover; transform: translateZ(1px); }
     .about-copy { min-width: 0; }
     .about-copy > * { opacity: 0; transform: translateY(12px); filter: blur(7px); }
     .about-layout.is-revealed .about-copy > * { animation: about-copy-reveal .7s cubic-bezier(.22,1,.36,1) both; }
@@ -197,6 +198,8 @@
     .hero-header, .portfolio-content, .option-grid { transition: transform .75s cubic-bezier(.22,1,.36,1), opacity .45s ease, width .75s cubic-bezier(.22,1,.36,1); }
     .hero-header { transition: transform .75s cubic-bezier(.22,1,.36,1), opacity .45s ease, width .75s cubic-bezier(.22,1,.36,1), height .55s cubic-bezier(.22,1,.36,1), margin .55s cubic-bezier(.22,1,.36,1); }
     .profile-image { transition: width 1.05s cubic-bezier(.4,0,.2,1), height 1.05s cubic-bezier(.4,0,.2,1), margin 1.05s cubic-bezier(.4,0,.2,1), border-radius 1.05s cubic-bezier(.4,0,.2,1), transform 1.05s cubic-bezier(.4,0,.2,1); }
+    .mobile-menu-hint { position: fixed; z-index: 30; top: 1.55rem; left: 5.5rem; max-width: calc(100vw - 7rem); padding: .45rem .7rem; border: 1px solid rgba(255,255,255,.7); border-radius: .55rem; background: rgba(15,23,42,.9); color: #fff; font-size: .72rem; line-height: 1.3; box-shadow: 0 5px 16px rgba(15,23,42,.2); opacity: 0; visibility: hidden; transform: translateY(-.25rem); transition: opacity .2s ease, transform .2s ease, visibility .2s ease; pointer-events: none; }
+    .mobile-menu-hint.is-visible { opacity: 1; visibility: visible; transform: translateY(0); }
     .portfolio-content { transform-origin: center center; }
     .portfolio-option { transition: transform .48s cubic-bezier(.34,1.56,.64,1), opacity .35s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease; }
     .portfolio-option:hover { background: rgba(1,113,227,.12); border-color: rgba(1,113,227,.45); box-shadow: 0 10px 24px rgba(1,113,227,.16), 0 0 0 2px rgba(255,255,255,.2); }
@@ -240,6 +243,7 @@
       .is-exploring.more-view { padding-top: 5.25rem; }
       .is-exploring.more-view .portfolio-content { width: calc(100vw - 1.5rem) !important; margin-left: 0; }
       .is-exploring .profile-image { top: 1rem; left: 1rem; width: 4rem; height: 4rem; cursor: pointer; }
+      .mobile-menu-hint { top: 1.15rem; left: 5.4rem; }
       .is-exploring .option-grid { top: 6rem; left: .75rem; width: 4rem; gap: .45rem; }
       .is-exploring .portfolio-option { width: 4rem !important; height: 4rem !important; }
       .is-exploring .portfolio-option span { font-size: .6rem; }
@@ -272,6 +276,7 @@
     </div>
       <div class="hero-header z-1 mt-24 mb-8 flex flex-col items-center text-center md:mt-4 md:mb-12">
         <img class="profile-image" src="images/avatar.svg" alt="Nishit" role="button" tabindex="0" aria-controls="portfolio-options" aria-expanded="false" aria-label="Show portfolio options" />
+        <span class="mobile-menu-hint" role="status" aria-live="polite">Tap your profile photo to show or hide options.</span>
         <h2 class="text-secondary-foreground mt-1 text-xl font-semibold md:text-2xl">
           Hey, I&#x27;m Nishit
         </h2>
@@ -404,6 +409,10 @@
       var header = document.querySelector('.hero-header');
       var greetings = header.querySelectorAll('h2, h1');
       var image = document.querySelector('.profile-image');
+      var mobileMenuHint = document.querySelector('.mobile-menu-hint');
+      var mobileMenuHintTimer;
+      var portraitPreload = new Image();
+      portraitPreload.src = 'images/Nishit.jpeg';
       var content = document.querySelector('.portfolio-content');
       var optionGrid = document.querySelector('.option-grid');
       var panel = document.querySelector('.portfolio-panel');
@@ -808,6 +817,13 @@
         app.classList.toggle('mobile-menu-collapsed', !expanded);
         image.setAttribute('aria-expanded', String(expanded));
         image.setAttribute('aria-label', expanded ? 'Hide portfolio options' : 'Show portfolio options');
+        window.clearTimeout(mobileMenuHintTimer);
+        mobileMenuHint.classList.toggle('is-visible', !expanded && app.classList.contains('is-exploring') && window.innerWidth <= 700);
+        if (!expanded && app.classList.contains('is-exploring') && window.innerWidth <= 700) {
+          mobileMenuHintTimer = window.setTimeout(function () {
+            mobileMenuHint.classList.remove('is-visible');
+          }, 2500);
+        }
         if (expanded) {
           optionGrid.removeAttribute('inert');
           optionGrid.removeAttribute('aria-hidden');
